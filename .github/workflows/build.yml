@@ -1,27 +1,55 @@
-name: 构建内核
+name: 5.10.66 Kernel Build
 
 on:
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build on ubuntu-latest
     runs-on: ubuntu-latest
 
     steps:
-    - name: 检出代码
-      uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt install repo -y
+          sudo git config --global user.name "root"
+          sudo git config --global user.email "localhost"
+          sudo timedatectl set-timezone Asia/Shanghai
 
-    - name: 设置编译环境
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y <package-dependencies>
+      - name: Clone source code
+        run: |
+          repo init --depth=1 -u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-2022-01
+          sed -i 's/"android12-5.10-2022-01"/"deprecated\/android12-5.10-2022-01"/g' .repo/manifests/default.xml
+          repo sync
+          cd common
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+          cd KernelSU
+          echo "KSU_VERSION=$(($(git rev-list --count HEAD) + 10200))" >> $GITHUB_ENV
 
-    - name: 构建内核
-      run: |
-        # 在这里执行构建内核的命令和脚本
+      - name: Build images
+        run: |
+          sed -i 's/ -dirty//g' common/scripts/setlocalversion
+          sed -i 's/check_defconfig//g' common/build.config.gki
+          LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+          cd out/android12-5.10/dist
+          export PATCH_LEVEL=2022-05
+          export AVBTOOL=$GITHUB_WORKSPACE/build/build-tools/path/linux-x86/avbtool
+          export GZIP=$GITHUB_WORKSPACE/prebuilts/build-tools/path/linux-x86/gzip
+          export MKBOOTIMG=$GITHUB_WORKSPACE/tools/mkbootimg/mkbootimg.py
+          export UNPACK_BOOTIMG=$GITHUB_WORKSPACE/tools/mkbootimg/unpack_bootimg.py
+          curl -Lo gki-kernel.zip https://dl.google.com/android/gki/gki-certified-boot-android12-5.10-"${PATCH_LEVEL}"_r1.zip
+          unzip gki-kernel.zip && rm gki-kernel.zip
+          BOOT_IMG=$(find . -maxdepth 1 -name "boot*.img")
+          $UNPACK_BOOTIMG --boot_img="$BOOT_IMG"
+          rm "$BOOT_IMG"
+          $GZIP -n -k -f -9 Image >Image.gz
+          $MKBOOTIMG --header_version 4 --kernel Image.gz --output boot-gz.img --ramdisk out/ramdisk --os_version 12.0.0 --os_patch_level "${PATCH_LEVEL}"
+          $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot-gz.img --algorithm SHA256_RSA2048 --key $GITHUB_WORKSPACE/prebuilts/kernel-build-tools/linux-x86/share/avb/testkey_rsa2048.pem
+          
+          
 
-    - name: 上传构建产物
-      uses: actions/upload-artifact@v2
-      with:
-        name: kernel-artifact
-        path: <path-to-build-output>
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: 5.10.101_${{ env.KSU_VERSION }}
+          path: out/android12-5.10/dist/boot-gz.img
