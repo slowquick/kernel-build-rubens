@@ -1,9 +1,7 @@
 name: 构建内核
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build:
