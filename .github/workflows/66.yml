@@ -18,8 +18,8 @@ jobs:
 
       - name: Clone source code
         run: |
-          repo init --depth=1 -u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-2021-11
-          sed -i 's/"android12-5.10-2021-11"/"deprecated\/android12-5.10-2021-11"/g' .repo/manifests/default.xml
+          repo init --depth=1 -u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-2022-01
+          sed -i 's/"android12-5.10-2022-01"/"deprecated\/android12-5.10-2022-01"/g' .repo/manifests/default.xml
           repo sync
           cd common
           curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
