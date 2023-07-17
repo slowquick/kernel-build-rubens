@@ -1,0 +1,29 @@
+name: 构建内核
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v2
+
+    - name: 设置编译环境
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y <package-dependencies>
+
+    - name: 构建内核
+      run: |
+        # 在这里执行构建内核的命令和脚本
+
+    - name: 上传构建产物
+      uses: actions/upload-artifact@v2
+      with:
+        name: kernel-artifact
+        path: <path-to-build-output>
