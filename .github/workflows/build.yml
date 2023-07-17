@@ -1,4 +1,4 @@
-name: 5.10.66 Kernel Build
+name: Kernel Build
 
 on:
   workflow_dispatch:
