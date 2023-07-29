@@ -31,6 +31,8 @@ jobs:
           sed -i 's/ -dirty//g' common/scripts/setlocalversion
           sed -i 's/check_defconfig//g' common/build.config.gki
           sed -i '$ a CONFIG_LOCALVERSION="-GKI-XY"' common/arch/arm64/configs/gki_defconfig
+          sed -i 's/"$CONFIG_LOCALVERSION_AUTO" = "y"/"$CONFIG_LOCALVERSION_AUTO" = "n"/' common/scripts/setlocalversion
+          sed -i 's/scm:++/scm:+/' common/scripts/setlocalversion
           LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
           cd out/android12-5.10/dist
           export PATCH_LEVEL=2022-05
