@@ -54,5 +54,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: 5.10.101_${{ env.KSU_VERSION }}
+          name: 5.10.66_${{ env.KSU_VERSION }}
           path: out/android12-5.10/dist/boot-gz.img
