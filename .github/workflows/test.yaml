@@ -34,7 +34,12 @@ jobs:
 
       - name: Build images
         run: |
+          sed -i 's/ CONFIG_CFI_CLANG=y/\# CONFIG_CFI_CLANG is not set' common/arch/arm64/configs/gki_defconfig
+          sed -i 's/ -dirty//g' common/scripts/setlocalversion
           sed -i 's/check_defconfig//g' common/build.config.gki
+          sed -i 's/EXTRAVERSION =/EXTRAVERSION = -GKI-XY/' common/Makefile
+          sed -i 's/"$CONFIG_LOCALVERSION_AUTO" = "y"/"$CONFIG_LOCALVERSION_AUTO" = "n"/' common/scripts/setlocalversion
+          sed -i 's/scm:++/scm:+/' common/scripts/setlocalversion
           LTO=none BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
           cd out/android12-5.10/dist
           export PATCH_LEVEL=2022-05
