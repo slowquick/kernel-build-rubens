@@ -34,7 +34,7 @@ jobs:
 
       - name: Build images
         run: |
-          sed -i 's/ CONFIG_CFI_CLANG=y/\# CONFIG_CFI_CLANG is not set' common/arch/arm64/configs/gki_defconfig
+          sed -i 's/ CONFIG_CFI_CLANG=y/\# CONFIG_CFI_CLANG is not set/' common/arch/arm64/configs/gki_defconfig
           sed -i 's/ -dirty//g' common/scripts/setlocalversion
           sed -i 's/check_defconfig//g' common/build.config.gki
           sed -i 's/EXTRAVERSION =/EXTRAVERSION = -GKI-XY/' common/Makefile
