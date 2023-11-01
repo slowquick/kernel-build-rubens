@@ -24,7 +24,7 @@ jobs:
 
       - name: Clone source code
         run: |
-          repo init --depth=1 -u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-2022-01
+          repo init --depth=1 -u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-2022-01 --repo-rev=v2.16
           sed -i 's/"android12-5.10-2022-01"/"deprecated\/android12-5.10-2022-01"/g' .repo/manifests/default.xml
           repo sync
           cd common
