@@ -57,7 +57,7 @@ jobs:
           curl -X POST \
             -H "Accept: application/vnd.github.everest-preview+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/SimithAaron/files/dispatches \
+            https://api.github.com/repos/uchengX/kernel-build-rubens/dispatches \
             --data '{"event_type": "manual-build"}'
 
 
