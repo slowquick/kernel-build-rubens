@@ -1,0 +1,63 @@
+name: Auto ksu
+
+on:
+  schedule:
+    - cron: '0 15 * * *' 
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    name: Monitor file changes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: tiann/KernelSU
+          ref: main
+      
+      - name: Get last commit time
+        id: last-commit
+        run: |
+          cd .github/workflows
+          last_commit=$(git log -1 --format=%cd build-kernel-a12.yml | cut -d' ' -f2-6)
+          last_commit=${last_commit% +*}
+          echo "::set-output name=commit_time::$last_commit"
+
+      
+      - name: Calculate time difference
+        id: calculate-difference
+        run: |
+          commit_time="${{ steps.last-commit.outputs.commit_time }}"
+          current_time=$(date +"%s")
+          commit_timestamp=$(date -d "${commit_time/+/ }" +"%s")
+          time_diff=$((current_time - commit_timestamp))
+          echo "::set-output name=time_difference::$time_diff"
+
+      
+      - name: Output result
+        id: output-result
+        run: |
+          time_diff=${{ steps.calculate-difference.outputs.time_difference }}
+          if [ $time_diff -le 86400 ]; then
+            echo "::set-output name=result::true"
+          else
+            echo "::set-output name=result::false"
+          fi
+      
+      - name: End Workflow
+        if: steps.output-result.outputs.result == 'false'
+        run: echo "Workflow ended"
+      
+      - name: Continue
+        if: steps.output-result.outputs.result == 'true'
+        run: |
+          echo "File changed. Triggering Manual build workflow."
+          curl -X POST \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/SimithAaron/files/dispatches \
+            --data '{"event_type": "manual-build"}'
+
+
