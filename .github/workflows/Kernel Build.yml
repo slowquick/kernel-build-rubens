@@ -1,11 +1,12 @@
-
 name: Kernel Build
 
 on:
+  repository_dispatch:
+    types: [manual-build]
   workflow_dispatch:
 
 jobs:
-  build:
+ KernelSU:
     name: Build on ubuntu-latest
     runs-on: ubuntu-latest
 
@@ -17,6 +18,8 @@ jobs:
     
       - name: Install dependencies
         run: |
+          cd $GITHUB_WORKSPACE
+          mkdir K50 && cd K50
           sudo apt update && sudo apt install repo -y
           sudo git config --global user.name "root"
           sudo git config --global user.email "localhost"
@@ -54,11 +57,19 @@ jobs:
           $GZIP -n -k -f -9 Image >Image.gz
           $MKBOOTIMG --header_version 4 --kernel Image.gz --output boot-gz.img --ramdisk out/ramdisk --os_version 12.0.0 --os_patch_level "${PATCH_LEVEL}"
           $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot-gz.img --algorithm SHA256_RSA2048 --key $GITHUB_WORKSPACE/prebuilts/kernel-build-tools/linux-x86/share/avb/testkey_rsa2048.pem
+          sudo tar -czvf boot-gz.tar.gz boot-gz.img
           
-          
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
           name: 5.10.66_${{ env.KSU_VERSION }}
-          path: out/android12-5.10/dist/boot-gz.img
+          path: out/android12-5.10/dist/boot-gz.tar.gz
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: latest
+          name: 5.10.66-${{ env.KSU_VERSION }} Kernel for Rubens
+          files: out/android12-5.10/dist/boot-gz.tar.gz
