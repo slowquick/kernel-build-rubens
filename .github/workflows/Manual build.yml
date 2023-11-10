@@ -76,7 +76,7 @@ jobs:
 
       - name: Set environment variable
         run: |
-          echo "https://github.com/SimithAaron/files/releases/download/latest/boot-gz.img" >> url.txt
+          echo "https://github.com/uchengX/kernel-build-rubens/releases/download/latest/boot-gz.tar.gz" >> url.txt
           echo "MESSAGE_FILE_PATH=$(cat url.txt)" >> $GITHUB_ENV
 
       - name: Send message via Telegram
