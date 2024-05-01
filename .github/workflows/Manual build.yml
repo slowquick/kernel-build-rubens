@@ -53,6 +53,7 @@ jobs:
           echo "# CONFIG_ANDROID_PARANOID_NETWORK is not set" >> arch/arm64/configs/gki_defconfig
           sed -i '/CONFIG_BRIDGE_VLAN_FILTERING/d' arch/arm64/configs/gki_defconfig
           echo "CONFIG_BRIDGE_VLAN_FILTERING=y" >> arch/arm64/configs/gki_defconfig
+          echo "CONFIG_VLAN_8021Q=y" >> arch/arm64/configs/gki_defconfig
           # chmod +x utils/runcpatch.sh
           # if [ -f kernel/cgroup/cgroup.c ]; then
           #   sh utils/runcpatch.sh kernel/cgroup/cgroup.c
