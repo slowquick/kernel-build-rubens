@@ -39,6 +39,21 @@ jobs:
           sed -i 's/ -dirty//g' common/scripts/setlocalversion
           sed -i 's/check_defconfig//g' common/build.config.gki
           LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+          
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Image
+          path: out/android12-5.10/dist/Image
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: latest
+          name: Image 
+          files: out/android12-5.10/dist/Image
        
           
 
