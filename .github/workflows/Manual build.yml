@@ -32,7 +32,7 @@ jobs:
           cd common
           wget https://github.com/wu17481748/lxc-docker/releases/download/lxc-docker-2config/LXC-DOCKER-OPEN-CONFIG.sh
           chmod 777 LXC-DOCKER-OPEN-CONFIG.sh
-          ./LXC-DOCKER-OPEN-CONFIG.sh android-kernel/arch/arm64/configs/gki_defconfig -w
+          ./LXC-DOCKER-OPEN-CONFIG.sh ./arch/arm64/configs/gki_defconfig -w
           wget https://github.com/wu17481748/lxc-docker/releases/download/lxc/lxc.patch
           patch -p0 < lxc.patch
           curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
